@@ -73,11 +73,6 @@ export default function RootLayout({
                 "@type": "Organization",
                 name: "Roboyo",
               },
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: "Edinburgh",
-                addressCountry: "GB",
-              },
               knowsAbout: [
                 "Enterprise AI strategy",
                 "Multi-agent AI platforms",
