@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Option A — Magnetic Text</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Source+Sans+3:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f0e8;
+    color: #1e1914;
+    font-family: 'Source Sans 3', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Oversized faded initials */
+  .watermark {
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40rem;
+    font-weight: 300;
+    opacity: 0.03;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+  }
+
+  /* Corner brackets */
+  .corner-tr, .corner-bl {
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+  }
+  .corner-tr {
+    top: 2rem; right: 2rem;
+    border-top: 1px solid #8b7355;
+    border-right: 1px solid #8b7355;
+  }
+  .corner-bl {
+    bottom: 2rem; left: 2rem;
+    border-bottom: 1px solid #8b7355;
+    border-left: 1px solid #8b7355;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #8b7355;
+    margin-bottom: 2rem;
+  }
+
+  .name-container {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .letter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw + 1rem, 7rem);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+    cursor: default;
+  }
+
+  .letter.space {
+    width: 0.3em;
+  }
+
+  .line {
+    width: 6rem;
+    height: 1px;
+    background: #8b7355;
+    margin: 0 auto 1.5rem;
+  }
+
+  .subtitle {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #5c4d3c;
+  }
+
+  .badge {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #8b7355;
+    background: #ebe3d7;
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+  }
+
+  .hint {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #d4c5b0;
+  }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="corner-tr"></div>
+  <div class="corner-bl"></div>
+  <div class="watermark">EH</div>
+
+  <div class="badge">Option A — Magnetic Text</div>
+
+  <div class="content">
+    <p class="label">Portfolio — 2026</p>
+    <div class="name-container" id="nameContainer"></div>
+    <div class="line"></div>
+    <p class="subtitle">AI Consultant & Technologist</p>
+  </div>
+
+  <p class="hint">Move your cursor over the name</p>
+</div>
+
+<script>
+  const name = "Euan Hill";
+  const container = document.getElementById('nameContainer');
+
+  // Create letter elements
+  name.split('').forEach((char) => {
+    const span = document.createElement('span');
+    span.className = char === ' ' ? 'letter space' : 'letter';
+    span.textContent = char === ' ' ? '' : char;
+    container.appendChild(span);
+  });
+
+  const letters = document.querySelectorAll('.letter:not(.space)');
+  const magnetStrength = 40; // max pixel displacement
+  const magnetRadius = 200;  // influence radius in px
+
+  document.addEventListener('mousemove', (e) => {
+    const mx = e.clientX;
+    const my = e.clientY;
+
+    letters.forEach((letter) => {
+      const rect = letter.getBoundingClientRect();
+      const lx = rect.left + rect.width / 2;
+      const ly = rect.top + rect.height / 2;
+
+      const dx = lx - mx;
+      const dy = ly - my;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < magnetRadius) {
+        const force = (1 - dist / magnetRadius) ** 2;
+        const pushX = (dx / dist) * force * magnetStrength;
+        const pushY = (dy / dist) * force * magnetStrength;
+        letter.style.transform = `translate(${pushX}px, ${pushY}px)`;
+      } else {
+        letter.style.transform = 'translate(0, 0)';
+      }
+    });
+  });
+
+  // Reset on mouse leave
+  document.addEventListener('mouseleave', () => {
+    letters.forEach((letter) => {
+      letter.style.transform = 'translate(0, 0)';
+    });
+  });
+</script>
+</body>
+</html>

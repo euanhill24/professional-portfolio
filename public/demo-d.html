@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Option D — Text Shadow Depth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Source+Sans+3:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f5f0e8;
+    color: #1e1914;
+    font-family: 'Source Sans 3', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    perspective: 800px;
+  }
+
+  /* Oversized faded initials */
+  .watermark {
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40rem;
+    font-weight: 300;
+    opacity: 0.03;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .corner-tr, .corner-bl {
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    z-index: 3;
+  }
+  .corner-tr {
+    top: 2rem; right: 2rem;
+    border-top: 1px solid #8b7355;
+    border-right: 1px solid #8b7355;
+  }
+  .corner-bl {
+    bottom: 2rem; left: 2rem;
+    border-bottom: 1px solid #8b7355;
+    border-left: 1px solid #8b7355;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: transform 0.15s ease-out;
+  }
+
+  .label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #8b7355;
+    margin-bottom: 2rem;
+    transform: translateZ(20px);
+  }
+
+  .name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw + 1rem, 7rem);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+    transform: translateZ(60px);
+    transition: text-shadow 0.15s ease-out;
+  }
+
+  .line-wrapper {
+    transform: translateZ(30px);
+  }
+
+  .line {
+    width: 6rem;
+    height: 1px;
+    background: #8b7355;
+    margin: 0 auto 1.5rem;
+  }
+
+  .subtitle {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #5c4d3c;
+    transform: translateZ(15px);
+  }
+
+  .badge {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #8b7355;
+    background: #ebe3d7;
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+    z-index: 10;
+  }
+
+  .hint {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #d4c5b0;
+    z-index: 10;
+  }
+
+  /* Subtle shadow layers for the decorative brackets */
+  .bracket-shadow {
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    z-index: 2;
+    transition: transform 0.2s ease-out;
+  }
+  .bracket-shadow--tr {
+    top: 2rem; right: 2rem;
+    border-top: 1px solid rgba(139, 115, 85, 0.2);
+    border-right: 1px solid rgba(139, 115, 85, 0.2);
+  }
+  .bracket-shadow--bl {
+    bottom: 2rem; left: 2rem;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.2);
+    border-left: 1px solid rgba(139, 115, 85, 0.2);
+  }
+</style>
+</head>
+<body>
+<div class="hero" id="hero">
+  <div class="corner-tr"></div>
+  <div class="corner-bl"></div>
+  <div class="bracket-shadow bracket-shadow--tr" id="shadowTR"></div>
+  <div class="bracket-shadow bracket-shadow--bl" id="shadowBL"></div>
+  <div class="watermark">EH</div>
+
+  <div class="badge">Option D — Text Shadow Depth</div>
+
+  <div class="content" id="content">
+    <p class="label">Portfolio — 2026</p>
+    <h1 class="name" id="nameEl">Euan Hill</h1>
+    <div class="line-wrapper">
+      <div class="line"></div>
+    </div>
+    <p class="subtitle">AI Consultant & Technologist</p>
+  </div>
+
+  <p class="hint">Move your cursor around to see the depth effect</p>
+</div>
+
+<script>
+  const content = document.getElementById('content');
+  const nameEl = document.getElementById('nameEl');
+  const hero = document.getElementById('hero');
+  const shadowTR = document.getElementById('shadowTR');
+  const shadowBL = document.getElementById('shadowBL');
+
+  document.addEventListener('mousemove', (e) => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+
+    // Normalised -1 to 1
+    const nx = (e.clientX - cx) / cx;
+    const ny = (e.clientY - cy) / cy;
+
+    // 3D tilt on the content card
+    const tiltX = ny * -4;  // subtle tilt
+    const tiltY = nx * 4;
+    content.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+
+    // Layered text shadows that shift with cursor — creates floating depth
+    const shadowX = nx * 12;
+    const shadowY = ny * 12;
+
+    nameEl.style.textShadow = `
+      ${shadowX * 0.3}px ${shadowY * 0.3}px 0px rgba(139, 115, 85, 0.08),
+      ${shadowX * 0.6}px ${shadowY * 0.6}px 0px rgba(139, 115, 85, 0.05),
+      ${shadowX}px ${shadowY}px 0px rgba(139, 115, 85, 0.03),
+      ${shadowX * 1.5}px ${shadowY * 1.5}px 20px rgba(139, 115, 85, 0.04)
+    `;
+
+    // Parallax the bracket shadows slightly offset from the real brackets
+    const bracketShift = 6;
+    shadowTR.style.transform = `translate(${nx * bracketShift}px, ${ny * bracketShift}px)`;
+    shadowBL.style.transform = `translate(${nx * bracketShift}px, ${ny * bracketShift}px)`;
+  });
+
+  // Reset on mouse leave
+  document.addEventListener('mouseleave', () => {
+    content.style.transform = 'rotateX(0deg) rotateY(0deg)';
+    nameEl.style.textShadow = 'none';
+    shadowTR.style.transform = 'translate(0, 0)';
+    shadowBL.style.transform = 'translate(0, 0)';
+  });
+</script>
+</body>
+</html>
