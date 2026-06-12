@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { content } from "@/data/content";
 import ParticleField from "./ParticleField";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function SplitLetters({
   text,
@@ -26,7 +24,7 @@ function SplitLetters({
           style={{ display: char === " " ? "inline" : "inline-block" }}
           aria-hidden="true"
         >
-          {char === " " ? "\u00A0" : char}
+          {char === " " ? " " : char}
         </span>
       ))}
     </span>
@@ -41,23 +39,12 @@ export default function Hero() {
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const watermarkRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+  // Everything is visible in the server-rendered HTML; initial hidden states
+  // are applied here, before first paint, only when we're going to animate.
+  useLayoutEffect(() => {
+    if (prefersReducedMotion()) return;
 
-    if (prefersReduced) {
-      // Show everything immediately
-      document
-        .querySelectorAll(".hero-letter")
-        .forEach((el) => gsap.set(el, { opacity: 1, y: 0, rotation: 0 }));
-      if (lineRef.current) gsap.set(lineRef.current, { scaleX: 1 });
-      if (subtitleRef.current) gsap.set(subtitleRef.current, { opacity: 1 });
-      if (labelRef.current) gsap.set(labelRef.current, { opacity: 1 });
-      if (scrollIndicatorRef.current)
-        gsap.set(scrollIndicatorRef.current, { opacity: 1 });
-      return;
-    }
+    const letters = sectionRef.current?.querySelectorAll(".hero-letter");
 
     const tl = gsap.timeline({ delay: 0.3 });
 
@@ -69,8 +56,7 @@ export default function Hero() {
     );
 
     // Letter-by-letter spring animation
-    const letters = sectionRef.current?.querySelectorAll(".hero-letter");
-    if (letters) {
+    if (letters?.length) {
       tl.fromTo(
         letters,
         { opacity: 0, y: 40, rotation: 8 },
@@ -123,12 +109,7 @@ export default function Hero() {
   // Scroll velocity skew on watermark
   useEffect(() => {
     const watermark = watermarkRef.current;
-    if (!watermark) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!watermark || prefersReducedMotion()) return;
 
     const trigger = ScrollTrigger.create({
       trigger: document.body,
@@ -175,7 +156,7 @@ export default function Hero() {
 
       {/* Content */}
       <div className="relative z-10 text-center max-w-5xl">
-        <p ref={labelRef} className="text-label text-copper mb-8 opacity-0">
+        <p ref={labelRef} className="text-label text-copper mb-8">
           {content.hero.label}
         </p>
 
@@ -186,14 +167,10 @@ export default function Hero() {
         <div
           ref={lineRef}
           className="editorial-rule w-24 mx-auto mb-6"
-          style={{ transform: "scaleX(0)" }}
           aria-hidden="true"
         />
 
-        <p
-          ref={subtitleRef}
-          className="text-subheading text-brown-light opacity-0"
-        >
+        <p ref={subtitleRef} className="text-subheading text-brown-light">
           {content.hero.subtitle}
         </p>
       </div>
@@ -201,7 +178,7 @@ export default function Hero() {
       {/* Scroll indicator */}
       <div
         ref={scrollIndicatorRef}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         aria-hidden="true"
       >
         <span className="text-label text-copper-muted text-[0.625rem] tracking-[0.2em]">

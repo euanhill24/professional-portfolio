@@ -1,10 +1,8 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 
 interface ScrollRevealProps {
   children: React.ReactNode;
@@ -27,12 +25,7 @@ export default function ScrollReveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!el || prefersReducedMotion()) return;
 
     const animations = {
       fadeUp: { y: 30, opacity: 0 },
@@ -40,11 +33,9 @@ export default function ScrollReveal({
       fadeIn: { opacity: 0 },
     };
 
-    const from = animations[animation];
+    gsap.set(el, animations[animation]);
 
-    gsap.set(el, from);
-
-    gsap.to(el, {
+    const tween = gsap.to(el, {
       y: 0,
       opacity: 1,
       clipPath: animation === "clipReveal" ? "inset(0% 0 0 0)" : undefined,
@@ -59,9 +50,8 @@ export default function ScrollReveal({
     });
 
     return () => {
-      ScrollTrigger.getAll().forEach((t) => {
-        if (t.trigger === el) t.kill();
-      });
+      tween.scrollTrigger?.kill();
+      tween.kill();
     };
   }, [animation, delay, duration]);
 

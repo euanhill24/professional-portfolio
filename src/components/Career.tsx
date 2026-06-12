@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { content } from "@/data/content";
 import ScrollReveal from "./ScrollReveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function Career() {
   const timelineLineRef = useRef<HTMLDivElement>(null);
@@ -17,11 +15,7 @@ export default function Career() {
     const section = sectionRef.current;
     if (!line || !section) return;
 
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReduced) {
+    if (prefersReducedMotion()) {
       gsap.set(line, { scaleY: 1 });
       return;
     }
@@ -89,9 +83,7 @@ export default function Career() {
                 <ScrollReveal
                   key={i}
                   delay={i * 0.1}
-                  className={`relative pl-12 md:pl-0 md:grid md:grid-cols-2 md:gap-12 ${
-                    isLeft ? "" : "md:direction-rtl"
-                  }`}
+                  className="relative pl-12 md:pl-0 md:grid md:grid-cols-2 md:gap-12"
                 >
                   {/* Dot on the line */}
                   <div
@@ -101,11 +93,11 @@ export default function Career() {
 
                   {/* Content - alternating sides on desktop */}
                   <div
-                    className={`md:direction-ltr ${
+                    className={
                       isLeft
                         ? "md:text-right md:pr-12"
                         : "md:col-start-2 md:pl-12"
-                    }`}
+                    }
                   >
                     <p className="text-label text-copper mb-2">
                       {entry.period}

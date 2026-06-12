@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 
 interface Particle {
   x: number;
@@ -22,19 +20,15 @@ export default function ParticleField() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!canvas || prefersReducedMotion()) return;
 
     const ctx = canvas.getContext("2d")!;
     let width = 0;
     let height = 0;
     let mouseX = -1000;
     let mouseY = -1000;
-    let animId: number;
+    let animId = 0;
+    let running = false;
 
     const mouseRadius = 150;
     let scrollVelocity = 0;
@@ -48,9 +42,35 @@ export default function ParticleField() {
       },
     });
 
+    let particles: Particle[] = [];
+
+    function seedParticles() {
+      const count = Math.min(350, Math.floor((width * height) / 4000));
+      particles = [];
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        particles.push({
+          x,
+          y,
+          originX: x,
+          originY: y,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          size: Math.random() * 2 + 0.8,
+          opacity: Math.random() * 0.3 + 0.15,
+        });
+      }
+    }
+
     function resize() {
-      width = canvas!.width = canvas!.offsetWidth;
-      height = canvas!.height = canvas!.offsetHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = canvas!.offsetWidth;
+      height = canvas!.offsetHeight;
+      canvas!.width = width * dpr;
+      canvas!.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      seedParticles();
     }
     resize();
     window.addEventListener("resize", resize);
@@ -66,24 +86,6 @@ export default function ParticleField() {
     };
     window.addEventListener("mousemove", onMove);
     canvas.addEventListener("mouseleave", onLeave);
-
-    // Create particles
-    const count = Math.min(350, Math.floor((width * height) / 4000));
-    const particles: Particle[] = [];
-    for (let i = 0; i < count; i++) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      particles.push({
-        x,
-        y,
-        originX: x,
-        originY: y,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
-        size: Math.random() * 2 + 0.8,
-        opacity: Math.random() * 0.3 + 0.15,
-      });
-    }
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
@@ -171,9 +173,20 @@ export default function ParticleField() {
       animId = requestAnimationFrame(animate);
     }
 
-    animate();
+    // Only burn frames while the hero is actually on screen
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !running) {
+        running = true;
+        animId = requestAnimationFrame(animate);
+      } else if (!entry.isIntersecting && running) {
+        running = false;
+        cancelAnimationFrame(animId);
+      }
+    });
+    observer.observe(canvas);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animId);
       velocityTrigger.kill();
       window.removeEventListener("resize", resize);

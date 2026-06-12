@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { content } from "@/data/content";
 import ScrollReveal from "./ScrollReveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function ProjectCard({
   title,
@@ -81,12 +79,7 @@ export default function Projects() {
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!section || prefersReducedMotion()) return;
 
     const wipeTrigger = ScrollTrigger.create({
       trigger: section,

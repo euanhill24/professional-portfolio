@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 
 interface AnimatedRuleProps {
   className?: string;
@@ -16,16 +14,7 @@ export default function AnimatedRule({ className = "", delay = 0 }: AnimatedRule
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReduced) {
-      gsap.set(el, { scaleX: 1 });
-      return;
-    }
+    if (!el || prefersReducedMotion()) return;
 
     gsap.set(el, { scaleX: 0 });
 

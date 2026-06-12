@@ -14,6 +14,41 @@ export const content = {
       { value: 15, suffix: "+", label: "Enterprise clients" },
     ],
   },
+  skills: {
+    heading: "Tools & platforms",
+    groups: [
+      {
+        label: "AI & Agents",
+        items: [
+          "Azure AI Foundry",
+          "Multi-agent orchestration",
+          "AI Builder",
+          "Prompt engineering",
+        ],
+      },
+      {
+        label: "Automation & Process",
+        items: [
+          "UiPath",
+          "Automation Anywhere",
+          "Power Automate",
+          "Celonis",
+          "Process mining",
+        ],
+      },
+      {
+        label: "Data & Engineering",
+        items: [
+          "Power BI",
+          "Power Apps",
+          "TypeScript",
+          "React",
+          "Next.js",
+          "Supabase",
+        ],
+      },
+    ],
+  },
   career: {
     heading: "The journey so far",
     entries: [
