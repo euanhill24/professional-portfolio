@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { content } from "@/data/content";
 import ScrollReveal from "./ScrollReveal";
 import AnimatedRule from "./AnimatedRule";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function WorkCard({
   number,
@@ -28,21 +26,14 @@ function WorkCard({
   const innerRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const isDesktop = useRef(false);
+  const rotateX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const rotateY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const card = cardRef.current;
-    if (!card) return;
+    if (!card || prefersReducedMotion()) return;
 
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReduced) {
-      gsap.set(card, { clipPath: "inset(0% 0 0 0)", opacity: 1 });
-      return;
-    }
-
-    gsap.set(card, { clipPath: "inset(100% 0 0 0)", opacity: 1 });
+    gsap.set(card, { clipPath: "inset(100% 0 0 0)" });
 
     const trigger = ScrollTrigger.create({
       trigger: card,
@@ -65,6 +56,24 @@ function WorkCard({
 
   useEffect(() => {
     isDesktop.current = window.matchMedia("(pointer: fine)").matches;
+
+    const inner = innerRef.current;
+    if (!inner || !isDesktop.current) return;
+
+    rotateX.current = gsap.quickTo(inner, "rotationX", {
+      duration: 0.4,
+      ease: "power2.out",
+    });
+    rotateY.current = gsap.quickTo(inner, "rotationY", {
+      duration: 0.4,
+      ease: "power2.out",
+    });
+
+    return () => {
+      rotateX.current = null;
+      rotateY.current = null;
+      gsap.set(inner, { rotationX: 0, rotationY: 0 });
+    };
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -76,33 +85,22 @@ function WorkCard({
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-    gsap.to(inner, {
-      rotateY: x * 8,
-      rotateX: -y * 8,
-      duration: 0.4,
-      ease: "power2.out",
-    });
+    rotateY.current?.(x * 8);
+    rotateX.current?.(-y * 8);
 
     glow.style.background = `radial-gradient(circle at ${e.clientX - rect.left}px ${e.clientY - rect.top}px, rgba(139,115,85,0.06), transparent 60%)`;
     glow.style.opacity = "1";
   };
 
   const handleMouseLeave = () => {
-    const inner = innerRef.current;
-    const glow = glowRef.current;
-    if (!inner || !isDesktop.current) return;
-
-    gsap.to(inner, {
-      rotateX: 0,
-      rotateY: 0,
-      duration: 0.6,
-      ease: "elastic.out(1, 0.5)",
-    });
-    if (glow) glow.style.opacity = "0";
+    if (!isDesktop.current) return;
+    rotateX.current?.(0);
+    rotateY.current?.(0);
+    if (glowRef.current) glowRef.current.style.opacity = "0";
   };
 
   return (
-    <div ref={cardRef} className="relative" style={{ opacity: 0 }}>
+    <div ref={cardRef} className="relative">
       <div
         style={{ perspective: "800px" }}
         onMouseMove={handleMouseMove}

@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import { content } from "@/data/content";
 import MagneticElement from "./MagneticElement";
 import AnimatedRule from "./AnimatedRule";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function SplitWords({ text }: { text: string }) {
   const words = text.split(" ");
@@ -32,13 +30,7 @@ export default function Contact() {
     const section = sectionRef.current;
     const contentEl = contentRef.current;
     const heading = headingRef.current;
-    if (!section || !contentEl || !heading) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReduced) return;
+    if (!section || !contentEl || !heading || prefersReducedMotion()) return;
 
     // Background color transition on scroll
     const colorTrigger = ScrollTrigger.create({
@@ -102,7 +94,7 @@ export default function Contact() {
 
     // Rest of content reveal (email, links, copyright)
     const restElements = contentEl.querySelectorAll(".contact-rest");
-    gsap.fromTo(
+    const restTween = gsap.fromTo(
       restElements,
       { opacity: 0, y: 20 },
       {
@@ -121,10 +113,10 @@ export default function Contact() {
 
     return () => {
       colorTrigger.kill();
+      wordTl.scrollTrigger?.kill();
       wordTl.kill();
-      ScrollTrigger.getAll().forEach((t) => {
-        if (t.trigger === contentEl) t.kill();
-      });
+      restTween.scrollTrigger?.kill();
+      restTween.kill();
     };
   }, []);
 

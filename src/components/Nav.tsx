@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { useLayoutEffect, useRef } from "react";
+import { gsap } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
+import { useLenis } from "./LenisProvider";
 import MagneticElement from "./MagneticElement";
 
 const sections = [
@@ -14,38 +16,42 @@ const sections = [
 
 export default function Nav() {
   const navRef = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
+  const lenisRef = useLenis();
 
-  useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 2400);
-    return () => clearTimeout(timer);
-  }, []);
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    if (!nav || prefersReducedMotion()) return;
 
-  useEffect(() => {
-    if (!visible || !navRef.current) return;
-    gsap.fromTo(
-      navRef.current,
+    // Hide before first paint, then fade in once the hero animation has landed
+    const tween = gsap.fromTo(
+      nav,
       { opacity: 0, y: -10 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }
+      { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 2.4 }
     );
-  }, [visible]);
+
+    return () => {
+      tween.kill();
+      gsap.set(nav, { opacity: 1, y: 0 });
+    };
+  }, []);
 
   const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
-    if (id === "top") {
+    const target = id === "top" ? 0 : `#${id}`;
+    const lenis = lenisRef?.current;
+    if (lenis) {
+      lenis.scrollTo(target);
+    } else if (id === "top") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  if (!visible) return null;
 
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-10 opacity-0"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-5 md:px-10"
       aria-label="Main navigation"
     >
       <MagneticElement strength={0.4}>

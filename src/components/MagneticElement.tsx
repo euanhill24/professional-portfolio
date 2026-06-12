@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { useEffect, useRef } from "react";
+import { gsap } from "@/lib/gsap";
+import { prefersReducedMotion, useMediaQuery } from "@/lib/motion";
 
 interface MagneticElementProps {
   children: React.ReactNode;
@@ -15,24 +16,11 @@ export default function MagneticElement({
   className = "",
 }: MagneticElementProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia("(pointer: fine)");
-    setIsDesktop(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
-  }, []);
+  const isDesktop = useMediaQuery("(pointer: fine)");
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !isDesktop) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!el || !isDesktop || prefersReducedMotion()) return;
 
     const onMove = (e: MouseEvent) => {
       const rect = el.getBoundingClientRect();

@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 import Image from "next/image";
 import { content } from "@/data/content";
 import ScrollReveal from "./ScrollReveal";
 import AnimatedRule from "./AnimatedRule";
-
-gsap.registerPlugin(ScrollTrigger);
 
 function StatCounter({
   value,
@@ -23,11 +21,7 @@ function StatCounter({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReduced) {
+    if (prefersReducedMotion()) {
       if (countRef.current) countRef.current.textContent = String(value);
       return;
     }
@@ -76,12 +70,7 @@ export default function About() {
     const section = sectionRef.current;
     const photo = photoRef.current;
     const bgShape = bgShapeRef.current;
-    if (!section || !photo || !bgShape) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!section || !photo || !bgShape || prefersReducedMotion()) return;
 
     const isMobile = window.innerWidth < 768;
     const photoY = isMobile ? -4 : -8;
@@ -142,7 +131,6 @@ export default function About() {
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 80vw, 280px"
-                    priority
                   />
                 </div>
               </div>
@@ -159,7 +147,7 @@ export default function About() {
         </div>
 
         <AnimatedRule className="w-full mb-12" />
-        <div className="grid grid-cols-3 gap-8">
+        <div className="grid grid-cols-3 gap-8 mb-20">
           {content.about.stats.map((stat, i) => (
             <StatCounter
               key={i}
@@ -167,6 +155,25 @@ export default function About() {
               suffix={stat.suffix}
               label={stat.label}
             />
+          ))}
+        </div>
+
+        <AnimatedRule className="w-full mb-12" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+          {content.skills.groups.map((group) => (
+            <ScrollReveal key={group.label}>
+              <h3 className="text-label text-copper mb-4">{group.label}</h3>
+              <ul className="flex flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <li
+                    key={item}
+                    className="text-label text-copper-light border border-copper-muted/40 px-2.5 py-1 text-[0.65rem]"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </ScrollReveal>
           ))}
         </div>
       </div>
