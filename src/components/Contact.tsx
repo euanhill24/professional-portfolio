@@ -177,14 +177,6 @@ export default function Contact() {
               Email
             </a>
           </MagneticElement>
-          <MagneticElement strength={0.3}>
-            <a
-              href="/cv"
-              className="text-label border border-current px-5 py-2.5 rounded-full hover:opacity-70 transition-opacity duration-300"
-            >
-              View CV
-            </a>
-          </MagneticElement>
         </div>
 
         <p className="contact-rest text-label opacity-40 mt-12" suppressHydrationWarning>

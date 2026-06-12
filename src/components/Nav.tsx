@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import Link from "next/link";
 import { gsap } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/motion";
 import { useLenis } from "./LenisProvider";
@@ -78,25 +77,9 @@ export default function Nav() {
             </a>
           </MagneticElement>
         ))}
-        <MagneticElement strength={0.3}>
-          <Link
-            href="/cv"
-            className="text-label text-copper hover:text-brown transition-colors duration-300 px-3 py-1.5 rounded-full border border-copper-muted/40 hover:border-copper"
-          >
-            CV
-          </Link>
-        </MagneticElement>
       </div>
 
-      <div className="md:hidden flex items-center gap-3">
-        <MagneticElement strength={0.4}>
-          <Link
-            href="/cv"
-            className="text-label text-copper hover:text-brown transition-colors duration-300"
-          >
-            CV
-          </Link>
-        </MagneticElement>
+      <div className="md:hidden">
         <MagneticElement strength={0.4}>
           <a
             href="#contact"
