@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { prefersReducedMotion } from "@/lib/motion";
 
 interface ScrollMarqueeProps {
   text: string;
@@ -17,12 +15,7 @@ export default function ScrollMarquee({ text }: ScrollMarqueeProps) {
   useEffect(() => {
     const container = containerRef.current;
     const textEl = textRef.current;
-    if (!container || !textEl) return;
-
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReduced) return;
+    if (!container || !textEl || prefersReducedMotion()) return;
 
     const trigger = ScrollTrigger.create({
       trigger: container,

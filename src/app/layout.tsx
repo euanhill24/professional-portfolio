@@ -30,6 +30,14 @@ export const metadata: Metadata = {
       "Portfolio of Euan Hill, an AI technology consultant specialising in enterprise AI strategy, intelligent automation, and digital transformation.",
     type: "website",
     locale: "en_GB",
+    url: "/",
+    siteName: "Euan Hill",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Euan Hill — AI Consultant & Technologist",
+    description:
+      "Portfolio of Euan Hill, an AI technology consultant specialising in enterprise AI strategy, intelligent automation, and digital transformation.",
   },
   robots: {
     index: true,
@@ -56,6 +64,28 @@ export default function RootLayout({
               description:
                 "AI technology consultant specialising in enterprise AI strategy, intelligent automation, and digital transformation.",
               url: "https://euanhill.com",
+              email: "mailto:euan.hill24@gmail.com",
+              sameAs: [
+                "https://www.linkedin.com/in/euan-hill/",
+                "https://github.com/euanhill24",
+              ],
+              worksFor: {
+                "@type": "Organization",
+                name: "Roboyo",
+              },
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Edinburgh",
+                addressCountry: "GB",
+              },
+              knowsAbout: [
+                "Enterprise AI strategy",
+                "Multi-agent AI platforms",
+                "Azure AI Foundry",
+                "Intelligent automation",
+                "Process mining",
+                "Digital transformation",
+              ],
             }),
           }}
         />
